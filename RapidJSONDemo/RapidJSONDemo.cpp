@@ -15,9 +15,14 @@
 #include "rapidjson/filereadstream.h"
 #include "rapidjson/schema.h"
 #include "rapidjson/stringbuffer.h"
+#include <sstream>
 
 using namespace rapidjson;
 using std::string;
+using std::cout;
+using std::endl;
+using std::ostringstream;
+using std::istringstream;
 
 void Demo()
 {
@@ -60,7 +65,7 @@ int TestSchema() {
 	char buffer[4096];
 
 	{
-		const char* pszSchemaDefs = "schemadefs.json";
+		const char* pszSchemaDefs = "JsonSchema/Coord.json";
 		FILE *fp = fopen(pszSchemaDefs, "r");
 		if (!fp) {
 			printf("Schema file '%s' not found\n", pszSchemaDefs);
@@ -85,8 +90,14 @@ int TestSchema() {
 	// Use reader to parse the JSON in stdin, and forward SAX events to validator
 	SchemaValidator validator(sd);
 	Reader reader;
-	FileReadStream is(stdin, buffer, sizeof(buffer));
-	if (!reader.Parse(is, validator) && reader.GetParseErrorCode() != kParseErrorTermination) {
+// 	FileReadStream is(stdin, buffer, sizeof(buffer));
+// 	istringstream iss("{\"x\":1, \"y\":1}");
+// 	ostringstream oss;
+// 	oss << "{\"x\":1, \"y\":1}";
+// 	StringBuffer sb;
+// 	Writer<StringBuffer> writer(sb);
+	StringStream ss("{\"x\":1}");
+	if (!reader.Parse(ss, validator) && reader.GetParseErrorCode() != kParseErrorTermination) {
 		// Schema validator error would cause kParseErrorTermination, which will handle it in next step.
 		fprintf(stderr, "Input is not a valid JSON\n");
 		fprintf(stderr, "Error(offset %u): %s\n",
@@ -114,6 +125,45 @@ int TestSchema() {
 
 int main() 
 {
+	//{
+	//	clock_t cur = clock();
+
+	//	for (int i = 0; i < 10000; ++i) {
+	//		Value root;
+	//		root["territoryOP"]["wood"] = 1;
+	//		root["territoryOP"]["iron"] = 1;
+	//		root["territoryOP"]["stone"] = 1;
+	//		root["territoryOP"]["food"] = 1;
+
+	//		root["buildingOP"]["wood"] = 1;
+	//		root["buildingOP"]["iron"] = 1;
+	//		root["buildingOP"]["stone"] = 1;
+	//		root["buildingOP"]["food"] = 1;
+
+	//		root["allianceCityOP"]["wood"] = 1;
+	//		root["allianceCityOP"]["iron"] = 1;
+	//		root["allianceCityOP"]["stone"] = 1;
+	//		root["allianceCityOP"]["food"] = 1;
+
+	//		root["troopCostOP"]["wood"] = 1;
+	//		root["troopCostOP"]["iron"] = 1;
+	//		root["troopCostOP"]["stone"] = 1;
+	//		root["troopCostOP"]["food"] = 1;
+
+	//		StringBuffer buffer;
+	//		Writer<StringBuffer> writer(buffer);
+	//		root.Accept(writer);
+	//		string str = buffer.GetString();
+	//	}
+
+	//	cout << "time cost: " << clock() - cur << endl;
+	//	system("pause");
+	//}
+
+// 	Value val;
+// 	val["hello"] = "world";
+// 	int i = val["hello"].GetUint();
+
 	TestSchema();
 
 	system("pause");
