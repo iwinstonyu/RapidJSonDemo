@@ -10,6 +10,7 @@
 #pragma once
 #include <rapidjson/schema.h>
 #include <map>
+#include <vector>
 using namespace std;
 
 namespace lp{
@@ -64,6 +65,7 @@ private:
 	RJReader							reader_;
 	map<EJsonMsg, RJValidator*>			validators_;
 	SchemaProvider						schemaProvider_;
+	vector<RJSchemaDoc*>				validatorSchemas_;		///< validators_不释放Schema，所以需要保存Schema在析构的时候释放。
 };
 
 }

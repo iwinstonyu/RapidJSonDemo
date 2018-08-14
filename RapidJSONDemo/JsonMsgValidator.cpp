@@ -16,6 +16,14 @@
 #include <sstream>
 using namespace std;
 
+#ifdef _DEBUG
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
+// allocations to be of _CLIENT_BLOCK type
+#else
+#define DBG_NEW new
+#endif
+
 namespace lp {
 
 using rapidjson::GetParseError_En;
@@ -71,6 +79,11 @@ JsonMsgValidator::~JsonMsgValidator()
 			delete it->second;
 	}
 	validators_.clear();
+
+	for (auto it = validatorSchemas_.begin(); it != validatorSchemas_.end(); ++it) {
+		if (*it)
+			delete (*it);
+	}
 }
 
 void JsonMsgValidator::InitSchemaProvier(const char* uri, const char* pFileName)
@@ -88,7 +101,9 @@ void JsonMsgValidator::InitValidator(EJsonMsg msgType, const char* pFileName)
 	if (!pSchema)
 		return;
 
-	RJValidator* pValidator = new RJValidator(*pSchema);
+	validatorSchemas_.push_back(pSchema);
+
+	RJValidator* pValidator = DBG_NEW RJValidator(*pSchema);
 	validators_[msgType] = pValidator;
 }
 
@@ -146,7 +161,7 @@ RJSchemaDoc* JsonMsgValidator::InitSchema(const char* pFileName)
 	}
 	fclose(pFile);
 
-	return new RJSchemaDoc(doc, &schemaProvider_);
+	return DBG_NEW RJSchemaDoc(doc, &schemaProvider_);
 }
 
 }
