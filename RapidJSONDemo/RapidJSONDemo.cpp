@@ -16,13 +16,12 @@
 #include "rapidjson/schema.h"
 #include "rapidjson/stringbuffer.h"
 #include <sstream>
+#include <map>
+#include <fstream>
+#include "JsonMsgValidator.h"
 
 using namespace rapidjson;
-using std::string;
-using std::cout;
-using std::endl;
-using std::ostringstream;
-using std::istringstream;
+using namespace std;
 
 void Demo()
 {
@@ -65,7 +64,7 @@ int TestSchema() {
 	char buffer[4096];
 
 	{
-		const char* pszSchemaDefs = "JsonSchema/Coord.json";
+		const char* pszSchemaDefs = "JsonSchema/AttackLand.json";
 		FILE *fp = fopen(pszSchemaDefs, "r");
 		if (!fp) {
 			printf("Schema file '%s' not found\n", pszSchemaDefs);
@@ -96,7 +95,8 @@ int TestSchema() {
 // 	oss << "{\"x\":1, \"y\":1}";
 // 	StringBuffer sb;
 // 	Writer<StringBuffer> writer(sb);
-	StringStream ss("{\"x\":1}");
+	//StringStream ss("{\"x\":1}");
+	StringStream ss("{\"destCoord\":{\"x\":0, \"y\":1}, \"cityCoord\":{\"x\":1, \"y\":1}, \"troopId\":1}");
 	if (!reader.Parse(ss, validator) && reader.GetParseErrorCode() != kParseErrorTermination) {
 		// Schema validator error would cause kParseErrorTermination, which will handle it in next step.
 		fprintf(stderr, "Input is not a valid JSON\n");
@@ -120,6 +120,31 @@ int TestSchema() {
 		validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
 		fprintf(stderr, "Invalid document: %s\n", sb.GetString());
 		return EXIT_FAILURE;
+	}
+}
+
+void TestJsonMsgValidator()
+{
+	lp::JsonMsgValidator validator;
+	validator.InitSchemaProvier("Coord.json", "JsonSchema/Coord.json");
+	validator.InitValidator(lp::EJsonMsg_AttackLand, "JsonSchema/AttackLand.json");
+
+	ifstream ifs("JsonMsgValidatorCase.txt");
+	if (!ifs.is_open()) {
+		cout << "Fail open JsonMsgValidatorCase.txt" << endl;
+		return;
+	}
+
+	string str;
+	while (!ifs.eof()) {
+		getline(ifs, str);
+		cout << "Valiating: " << str << endl;
+		if (validator.IsValidJson(lp::EJsonMsg_AttackLand, str)) {
+			cout << "Vali json" << endl;
+		}
+		else {
+			cout << "Invalid json" << endl;
+		}
 	}
 }
 
@@ -164,7 +189,9 @@ int main()
 // 	val["hello"] = "world";
 // 	int i = val["hello"].GetUint();
 
-	TestSchema();
+	//TestSchema();
+
+	TestJsonMsgValidator();
 
 	system("pause");
 	return 0;

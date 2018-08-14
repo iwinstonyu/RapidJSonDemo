@@ -1,0 +1,23 @@
+{
+  "$id": "AttackLand.json",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Attack land",
+  "type": "object",
+  "required": [ "destCoord", "cityCoord", "troopId" ],
+  "properties": {
+    "destCoord": {
+      "description": "目的坐标",
+    	"$ref": "Coord.json"
+    },
+    "cityCoord": {
+    	"$ref": "Coord.json",
+      "description": "部队坐标"
+    },
+     "troopId": {
+      "description": "部队编号",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 4
+    }
+  }
+}
